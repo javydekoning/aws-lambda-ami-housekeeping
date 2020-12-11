@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  aws-lambda-ami-housekeeping
+
+  AWS SAM Template for AMI house-keeping. Make sure to change ENV variables to your preference.
+
+Globals:
+  Function:
+    Timeout: 30
+
+Resources:
+  AmiHouseKeepingFunction:
+    Type: AWS::Serverless::Function
+    Events:
+      CheckWebsiteScheduledEvent:
+        Type: Schedule
+        Properties:
+          Schedule: cron(0 10 * * ? *)
+    Properties:
+      CodeUri: app/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      MemorySize: 512
+      Environment:
+        Variables:
+          LOG_LEVEL: INFO
+          MAX_AGE_DAYS: 14
+          DRY_RUN: True
+      Policies:
+        - Statement:
+            - Sid: SSMGetConfig
+              Effect: Allow
+              Action:
+                - ec2:DescribeImages
+                - ec2:DeregisterImage
+                - ec2:DeleteSnapshot
+                - ec2:DescribeSnapshotAttribute
+                - ec2:DescribeImageAttribute
+                - ec2:DescribeSnapshots
+                - ec2:DescribeInstances
+              Resource: "*"
