@@ -12,21 +12,21 @@ Globals:
 Resources:
   AmiHouseKeepingFunction:
     Type: AWS::Serverless::Function
-    Events:
-      CheckWebsiteScheduledEvent:
-        Type: Schedule
-        Properties:
-          Schedule: cron(0 10 * * ? *)
     Properties:
       CodeUri: app/
       Handler: app.lambda_handler
       Runtime: python3.8
       MemorySize: 512
+      Events:
+        InvocationLevel:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 9 * * ? *)
       Environment:
         Variables:
           LOG_LEVEL: INFO
           MAX_AGE_DAYS: 14
-          DRY_RUN: True
+          DRY_RUN: False
       Policies:
         - Statement:
             - Sid: SSMGetConfig
